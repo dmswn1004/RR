@@ -9,14 +9,14 @@
 
 typedef int(*comp)(const void*, const void*);
 typedef struct process {
-	int pid; //ÇÁ·Î¼¼½º¹øÈ£
-	int ar_t; //µµÂø½Ã°£
-	int ser_t; //¼öÇà½Ã°£
-	bool is_finished; //Á¾·áÆÇ´Üº¯¼ö
-	int remain_time; //¼öÇàÈÄ ³²¾ÆÀÖ´Â ½Ã°£
-	int waiting_time; //´ë±â½Ã°£
-	int end_time; //Á¾·á½Ã°£
-	int put; //ÇÁ·Î¼¼½º ½ÇÇà ÆÇ´Ü º¯¼ö(0or1)
+	int pid; //í”„ë¡œì„¸ìŠ¤ë²ˆí˜¸
+	int ar_t; //ë„ì°©ì‹œê°„
+	int ser_t; //ìˆ˜í–‰ì‹œê°„
+	bool is_finished; //ì¢…ë£ŒíŒë‹¨ë³€ìˆ˜
+	int remain_time; //ìˆ˜í–‰í›„ ë‚¨ì•„ìˆëŠ” ì‹œê°„
+	int waiting_time; //ëŒ€ê¸°ì‹œê°„
+	int end_time; //ì¢…ë£Œì‹œê°„
+	int put; //í”„ë¡œì„¸ìŠ¤ ì‹¤í–‰ íŒë‹¨ ë³€ìˆ˜(0or1)
 } process;
 
 process g_process[MAX_PROCESS];
@@ -25,7 +25,7 @@ int q_head = 0;
 int q_tail = -1;
 int pr_cnt = -1;
 
-//ÇÁ·Î¼¼½º Á¾·á È®ÀÎ ÇÔ¼ö
+//í”„ë¡œì„¸ìŠ¤ ì¢…ë£Œ í™•ì¸ í•¨ìˆ˜
 int is_all_finish(){
 	int i;
 	for (i = 0; i <= pr_cnt; i++){
@@ -35,13 +35,13 @@ int is_all_finish(){
 	return 1;
 }
 
-//ÇÁ·Î¼¼½º¸¦ Å¥ ³¡¿¡ »ğÀÔ
+//í”„ë¡œì„¸ìŠ¤ë¥¼ í ëì— ì‚½ì…
 int prc_enqueue(process* prc){
 	prc_queue[++q_tail] = prc;
 	return 1;
 }
 
-//ÇÁ·Î¼¼½º¸¦ Å¥¿¡¼­ Á¦°Å
+//í”„ë¡œì„¸ìŠ¤ë¥¼ íì—ì„œ ì œê±°
 int prc_dequeue(){
 	prc_queue[q_head] = NULL;
 	q_head++;
@@ -51,63 +51,63 @@ int prc_dequeue(){
 	return 1;
 }
 
-//RR ¾Ë°í¸®Áò
+//RR ì•Œê³ ë¦¬ì¦˜
 void RR(int cnt, process s[]) {
 	int tm = 0;
-	int time_q = 1, time = 0; //q°ª = 1
-	int max_wait_index = 0; //°¡Àå ¿À·¡±â´Ù¸° ÇÁ·Î¼¼½º Index
-	int one_q = 1; //colck ÀÎÅÍ·´Æ® ¹ß»ı ¿©ºÎ ÆÇ´Ü º¯¼ö
-	int temp_time = 0; //ÀÓ½Ã ½Ã°£ º¯¼ö
-	int exit = 0; //Á¾·á ÇÁ·Î¼¼½º °³¼ö
+	int time_q = 1, time = 0; //qê°’ = 1
+	int max_wait_index = 0; //ê°€ì¥ ì˜¤ë˜ê¸°ë‹¤ë¦° í”„ë¡œì„¸ìŠ¤ Index
+	int one_q = 1; //colck ì¸í„°ëŸ½íŠ¸ ë°œìƒ ì—¬ë¶€ íŒë‹¨ ë³€ìˆ˜
+	int temp_time = 0; //ì„ì‹œ ì‹œê°„ ë³€ìˆ˜
+	int exit = 0; //ì¢…ë£Œ í”„ë¡œì„¸ìŠ¤ ê°œìˆ˜
 	
 	while (1) {
 		for (int i = 0; i < cnt; i++) {
-			//ÇöÀç ½Ã°£ = µµÂø½Ã°£ -> ÇÁ·Î¼¼½º ½ÇÇàÆÇ´Ü º¯¼ö 1
+			//í˜„ì¬ ì‹œê°„ = ë„ì°©ì‹œê°„ -> í”„ë¡œì„¸ìŠ¤ ì‹¤í–‰íŒë‹¨ ë³€ìˆ˜ 1
 			if (g_process[i].ar_t == time) g_process[i].put = 1;
 
-			//ÇÁ·Î¼¼½º »ı¼º && Å¬·°ÀÎÅÍ·´Æ® ¹ß»ı 
+			//í”„ë¡œì„¸ìŠ¤ ìƒì„± && í´ëŸ­ì¸í„°ëŸ½íŠ¸ ë°œìƒ 
 			if (g_process[i].put == 1 && one_q == 1) {
 
-				//ser_t != 0 && °¡Àå ¿À·¡ ±â´Ù¸° ÇÁ·Î¼¼½ºÀÇ ´ë±â½Ã°£º¸´Ù Å« ´ë±â½Ã°£À» °¡Áú¶§
+				//ser_t != 0 && ê°€ì¥ ì˜¤ë˜ ê¸°ë‹¤ë¦° í”„ë¡œì„¸ìŠ¤ì˜ ëŒ€ê¸°ì‹œê°„ë³´ë‹¤ í° ëŒ€ê¸°ì‹œê°„ì„ ê°€ì§ˆë•Œ
 				if (g_process[i].ser_t != 0 && g_process[i].waiting_time >= g_process[max_wait_index].waiting_time) {
-					//max_wait_indexÀÇ ÀÎµ¦½º °ª ÀúÀå
+					//max_wait_indexì˜ ì¸ë±ìŠ¤ ê°’ ì €ì¥
 					max_wait_index = i;
 				}
 			}
 		}
-		//½ÇÇà ÈÄ ´ë±â½Ã°£ 0À¸·Î ÃÊ±âÈ­
+		//ì‹¤í–‰ í›„ ëŒ€ê¸°ì‹œê°„ 0ìœ¼ë¡œ ì´ˆê¸°í™”
 		g_process[max_wait_index].waiting_time = 0;
 
-		//½ÇÇà ÇßÀ¸¹Ç·Î ¼öÇà ½Ã°£ -1
+		//ì‹¤í–‰ í–ˆìœ¼ë¯€ë¡œ ìˆ˜í–‰ ì‹œê°„ -1
 		g_process[max_wait_index].ser_t--;
-		//time quantum = 1ÀÏ ¶§ Á¾·á¸¦ À§ÇØ +1
+		//time quantum = 1ì¼ ë•Œ ì¢…ë£Œë¥¼ ìœ„í•´ +1
 		temp_time++;
 
 		for (int i = 0; i < cnt; i++) {
-			//´ë±âÁßÀÎ ÇÁ·Î¼¼½º&& ÇöÀç ºñ ½ÇÇà ÇÁ·Î¼¼½ºÀÏ °æ¿ì
+			//ëŒ€ê¸°ì¤‘ì¸ í”„ë¡œì„¸ìŠ¤&& í˜„ì¬ ë¹„ ì‹¤í–‰ í”„ë¡œì„¸ìŠ¤ì¼ ê²½ìš°
 			if (i != max_wait_index && g_process[i].put == 1) {
-				//´ë±â½Ã°£ +1
+				//ëŒ€ê¸°ì‹œê°„ +1
 				g_process[i].waiting_time++;
 			}
 		}
-		//°¡Àå ¿À·¡ ±â´Ù¸° ÇÁ·Î¼¼½ºÀÇ ¼öÇà½Ã°£ÀÌ 0 && 1ÃÊ ÀÌ»ó ½ÇÇà ½Ã Áß´Ü
+		//ê°€ì¥ ì˜¤ë˜ ê¸°ë‹¤ë¦° í”„ë¡œì„¸ìŠ¤ì˜ ìˆ˜í–‰ì‹œê°„ì´ 0 && 1ì´ˆ ì´ìƒ ì‹¤í–‰ ì‹œ ì¤‘ë‹¨
 		if (g_process[max_wait_index].ser_t != 0 && temp_time != time_q) {
 			one_q = 0;
 		}
 		else {
-			//¼öÇà½Ã°£ÀÌ 0ÀÏ ¶§ ÇÁ·Î¼¼½º ½ÇÇà Á¾·á
+			//ìˆ˜í–‰ì‹œê°„ì´ 0ì¼ ë•Œ í”„ë¡œì„¸ìŠ¤ ì‹¤í–‰ ì¢…ë£Œ
 			if (g_process[max_wait_index].ser_t == 0) {
 				g_process[tm].put = 0;
 				//tm = g_process[max_wait_index].pid - 1;
 				tm = max_wait_index;
-				//ÇÁ·Î¼¼½º Á¤º¸ Ãâ·Â
+				//í”„ë¡œì„¸ìŠ¤ ì •ë³´ ì¶œë ¥
 				printf("%d\t\t %ds\t\t  %ds\t\t  %ds\t\t %ds\t\t %.2fs \n", s[tm].pid, s[tm].ar_t, s[tm].ser_t,
 					time + 1, time + 1 - s[tm].ar_t, (time + 1 - s[tm].ar_t) / (double)s[tm].ser_t);
 				exit++;
 			}
-			//q=1¿Í ºñ±³ÇÒ ½Ã°£ °ª 0À¸·Î ÃÊ±âÈ­
+			//q=1ì™€ ë¹„êµí•  ì‹œê°„ ê°’ 0ìœ¼ë¡œ ì´ˆê¸°í™”
 			temp_time = 0;
-			//ÀÎÅÍ·´Æ® ¹ß»ı ¿©ºÎ º¯¼ö 1·Î º¯°æ
+			//ì¸í„°ëŸ½íŠ¸ ë°œìƒ ì—¬ë¶€ ë³€ìˆ˜ 1ë¡œ ë³€ê²½
 			one_q = 1;
 		}
 		time++;
@@ -133,17 +133,17 @@ int main(){
 	fclose(file);
 	
 	printf("=================Main Menu====================\n");
-	printf("1. Read index.txt\n2. RR\n0. Á¾·á\n");
+	printf("1. Read index.txt\n2. RR\n0. ì¢…ë£Œ\n");
 	printf("==============================================\n");
 	while (1) {
 		int u;
-		printf("¸Ş´º¸¦ ¼±ÅÃÇØÁÖ¼¼¿ä.>>");
-		scanf_s("%d", &u);
+		printf("ë©”ë‰´ë¥¼ ì„ íƒí•´ì£¼ì„¸ìš”.>>");
+		scanf_s("%d", &u); 
 
 		switch (u) {
 		case 1:
 			printf("====================INDEX======================\n");
-			printf("ÇÁ·Î¼¼½ºid\tµµÂø½Ã°£\t¼­ºñ½º½Ã°£\n");
+			printf("í”„ë¡œì„¸ìŠ¤id\të„ì°©ì‹œê°„\tì„œë¹„ìŠ¤ì‹œê°„\n");
 			for (i = 0; i < count; i++) {
 				copy_sys[i] = g_process[i];
 				printf("%d\t\t%d\t\t%d \n", g_process[i].pid, g_process[i].ar_t, g_process[i].ser_t);
@@ -151,15 +151,15 @@ int main(){
 			printf("==============================================\n");
 			break;
 		case 2:
-			printf("\n<RR ½ºÄÉÁÙ¸µ>\n");
-			printf("ÇÁ·Î¼¼½º id\t µµÂø½Ã°£\t ¼­ºñ½º ½Ã°£\t Á¾·á ½Ã°£\t ¹İÈ¯ ½Ã°£\t Á¤±ÔÈ­µÈ ¹İÈ¯ ½Ã°£\n");
+			printf("\n<RR ìŠ¤ì¼€ì¤„ë§>\n");
+			printf("í”„ë¡œì„¸ìŠ¤ id\t ë„ì°©ì‹œê°„\t ì„œë¹„ìŠ¤ ì‹œê°„\t ì¢…ë£Œ ì‹œê°„\t ë°˜í™˜ ì‹œê°„\t ì •ê·œí™”ëœ ë°˜í™˜ ì‹œê°„\n");
 			printf("=======================================================================================================\n");
 			RR(count, copy_sys);
 			printf("=======================================================================================================\n");
 			break;
 		case 0:
 			return 0;
-		default: printf("Àß¸ø ÀÔ·ÂÇß½À´Ï´Ù."); break;
+		default: printf("ì˜ëª» ì…ë ¥í–ˆìŠµë‹ˆë‹¤."); break;
 		}
 	}
 }
