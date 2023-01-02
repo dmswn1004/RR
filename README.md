@@ -22,10 +22,14 @@
 ![image](https://user-images.githubusercontent.com/101851472/210195627-18aee4f6-b65d-4a38-8fea-705ec01a67e6.png)
 
 ④ 실행 후, 대기 시간을 0으로 초기화
+
 ![image](https://user-images.githubusercontent.com/101851472/210195669-43083308-19bc-4059-a14d-fec807ac55f6.png)
 
 ⑤ 프로세스가 수행된 후 시간 할당량은 1이므로, 수행 시간에 -1값을 주어 할당된 시간이 지난 후의 종료를 위해 +1함
 ![image](https://user-images.githubusercontent.com/101851472/210195687-e6763f73-bed1-45c4-bda7-89500cb07476.png)
+
+⑥ 프로세스의 상태가 대기 중이거나 실행되지 않았을 때 대기 시간을 +1함
+![image](https://user-images.githubusercontent.com/101851472/210196035-cd2924bc-1843-446c-91a9-c7f79fbd027e.png)
 
 ⑦ 프로세스가 수행이 완료되어 종료되는 알고리즘
 ![image](https://user-images.githubusercontent.com/101851472/210195884-08f815d2-65ed-44e0-a086-4e5afdebad09.png)
